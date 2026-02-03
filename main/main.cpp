@@ -55,6 +55,69 @@ BFSResult bfs(Graph& g, int start) {
     }
     return res;
 }
+vector<int> shortestPathUnweighted(Graph& g, int s, int t) {
+    BFSResult res = bfs(g, s);
+
+    if (res.dist[t] == -1) {
+        return {}; 
+    }
+
+    vector<int> path;
+    for (int v = t; v != -1; v = res.parent[v]) {
+        path.push_back(v);
+    }
+
+    reverse(path.begin(), path.end());
+    return path;
+}
+void dfsRecursiveUtil(Graph& g, int v, vector<bool>& visited, vector<int>& order) {
+    visited[v] = true;
+    order.push_back(v);
+
+    for (int u : g.neighbors(v)) {
+        if (!visited[u]) {
+            dfsRecursiveUtil(g, u, visited, order);
+        }
+    }
+}
+
+vector<int> dfsRecursive(Graph& g, int start) {
+    vector<bool> visited(g.vertices(), false);
+    vector<int> order;
+
+    dfsRecursiveUtil(g, start, visited, order);
+    return order;
+}
+vector<int> dfsIterative(Graph& g, int start) {
+    vector<bool> visited(g.vertices(), false);
+    vector<int> order;
+    stack<int> st;
+
+    st.push(start);
+
+    while (!st.empty()) {
+        int v = st.top();
+        st.pop();
+
+        if (visited[v]) continue;
+
+        visited[v] = true;
+        order.push_back(v);
+
+        // Чтобы порядок был похож на рекурсивный DFS,
+        // кладём соседей в стек в обратном порядке
+        vector<int> neigh = g.neighbors(v);
+        reverse(neigh.begin(), neigh.end());
+
+        for (int u : neigh) {
+            if (!visited[u]) {
+                st.push(u);
+            }
+        }
+    }
+    return order;
+}
+
 
 int main() {
     Graph g(6, false);
